@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.scrapy_cache/
+data/
+*.csv
+.ipynb_checkpoints/
+*.egg-info/
+.scrapy/
