@@ -1,76 +1,53 @@
-LEGAL PROOF: Web Scraping of the European Central Bank (ECB) Website
-=====================================================================
+Legal proof: Web Scraping of the European Central Bank (ECB) Website
 Website: https://www.ecb.europa.eu
-Date of assessment: April 2026
-Purpose: Academic research (Master's thesis, Kozminski University)
+Date: April 2026
 
 1. EU OPEN DATA DIRECTIVE (2019/1024/EU)
------------------------------------------
-The EU Open Data Directive (Directive 2019/1024/EU of the European Parliament
-and of the Council of 20 June 2019 on open data and the re-use of public sector
-information) establishes that documents held by public sector bodies should be
-made available for re-use. The ECB, as an EU institution, falls under this
-framework. The directive explicitly encourages machine-readable access to
-public sector information.
+The EU Open Data Directive (Directive 2019/1024/EU of the European Parliament and of the Council of 20 June 2019 on open data and the re-use of public sector information) establishes that documents held by public sector bodies should be made available for re-use. The ECB, as an EU institution, falls under this framework. The directive explicitly encourages machine-readable access to public sector information.
 
 2. ECB ROBOTS.TXT ANALYSIS
----------------------------
-The ECB robots.txt file (https://www.ecb.europa.eu/robots.txt) was checked
-on April 2026. Key findings:
-
+The ECB robots.txt file (https://www.ecb.europa.eu/robots.txt) was checked on April 2026. Key findings:
 - User-agent: * (applies to all bots)
 - Sitemap: https://www.ecb.europa.eu/sitemap.xml (ECB provides a sitemap)
-- Crawl-delay: 5 (ECB requests 5 seconds between requests — we respect this)
-- Disallowed paths: only specific content-fragment URLs (*_content.xx.html)
-  and internal media files are disallowed
+- Crawl-delay: 5 (ECB requests 5 seconds between requests — I respect this in the project)
+- Disallowed paths: only specific content-fragment URLs (*_content.xx.html) and internal media files are disallowed
 - NO general prohibition on scraping
 - NO prohibition on AI/ML data collection
 - The ECB explicitly provides a sitemap, indicating they expect automated access
 
-Our scraper respects all robots.txt rules:
-- We obey the 5-second crawl delay
-- We do not access any disallowed paths
-- We identify ourselves with a standard user agent
+My scraper respects all robots.txt rules:
+- Obey the 5-second crawl delay
+- Does not access any disallowed paths
+- Identify ourselves with a standard user agent
 
 3. ECB RSS FEEDS
------------------
-The ECB explicitly provides RSS feeds for machine consumption:
-https://www.ecb.europa.eu/home/html/rss.en.html
-
-RSS (Really Simple Syndication) feeds are specifically designed to be read by
-automated tools and programs. By providing these feeds, the ECB is explicitly
-inviting machine-based access to their content.
+The ECB explicitly provides RSS feeds for machine usage: https://www.ecb.europa.eu/home/html/rss.en.html
+RSS (Really Simple Syndication) feeds are specifically designed to be read by automated tools and programs. By providing these feeds, the ECB is explicitly inviting machine-based access to their content.
 
 4. ECB COPYRIGHT POLICY
--------------------------
 ECB publications are subject to the ECB copyright policy, which permits:
 - Reproduction for educational and non-commercial research purposes
 - Proper attribution must be given to the ECB as the source
 
-Our project is:
+My project is:
 - Non-commercial (academic research for a university course)
-- Educational (Master's thesis at Kozminski University)
+- Educational
 - Properly attributed (all data clearly sourced from ECB)
 
 5. NATURE OF DATA COLLECTED
------------------------------
-- All scraped content consists of publicly available press releases,
-  speeches, blog posts, and publications
+- All scraped content consists of publicly available press releases and speeches
 - No personal data is collected
 - No login or authentication is required to access the content
 - No technical protection measures are bypassed
 
-6. SCRAPING METHODOLOGY (POLITE SCRAPING)
--------------------------------------------
-Our scraper follows best practices for polite scraping:
+6. SCRAPING METHODOLOGY
+The scraper follows best practices for polite scraping:
 - Respects the Crawl-delay of 5 seconds specified in robots.txt
 - Uses a standard user agent string
 - Makes a limited number of requests
 - Does not attempt to bypass any access restrictions
 - Only accesses publicly available pages
 
-CONCLUSION
------------
 Based on the above analysis, scraping the ECB website for this academic
 project is legal under EU law and compliant with the ECB's published
 access policies.

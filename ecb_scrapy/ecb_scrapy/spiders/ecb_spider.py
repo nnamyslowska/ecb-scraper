@@ -1,26 +1,33 @@
 # ============================================================
 # FILE: ecb_spider.py
-# THE SCRAPY SPIDER
+# THE SCRAPY SPIDER — FOR PRESS RELEASES
 #
 # WHAT IS A SPIDER?
 # A Spider is a class that defines:
-#   1. Where to start crawling (start_urls or start_requests)
+#   1. Where to start crawling (start_requests)
 #   2. How to extract data from each page (parse method)
 #
 # WHAT THIS SPIDER DOES:
-# 1. Reads article URLs from the CSV created in Step 1
-# 2. Sends a request to each URL
+# 1. Reads press release URLs from the CSV created by
+#    01c_press_json_requests.py
+# 2. Sends a request to each HTML URL
 # 3. Extracts the full article text from each page
 # 4. Yields an Item (which the Pipeline saves to CSV)
 #
+# WHY SCRAPY FOR PRESS RELEASES?
+# The project uses Selenium for speeches and Scrapy for
+# press releases. This shows we can use both tools on
+# different content types, which is more interesting
+# than using them for the same thing.
+#
 # HOW TO RUN:
 # From the ecb_scrapy/ folder, run:
-#   scrapy crawl ecb_articles
+#   scrapy crawl ecb_press
 #
 # DEFENSE QUESTION: "What is a Scrapy Spider?"
-# ANSWER: A Spider is a class that tells Scrapy what pages
-# to visit and how to extract data from them. The parse()
-# method is called for every page response.
+# ANSWER: A Spider tells Scrapy what pages to visit and
+# how to extract data from them. The parse() method is
+# called automatically for every downloaded page.
 # ============================================================
 
 import scrapy
@@ -29,52 +36,56 @@ import os
 from ecb_scrapy.items import EcbArticleItem
 
 
-class EcbArticleSpider(scrapy.Spider):
+class EcbPressSpider(scrapy.Spider):
     """
-    Spider that crawls ECB article pages to extract full text.
-    It reads URLs from the CSV file created by Step 1.
+    Spider that crawls ECB press release pages to extract
+    their full text content.
     """
 
-    # Name used to run the spider: scrapy crawl ecb_articles
-    name = "ecb_articles"
+    # Name used to run the spider: scrapy crawl ecb_press
+    name = "ecb_press"
 
-    # Allowed domains — Scrapy will only visit these domains
+    # Scrapy will only visit pages on this domain
     allowed_domains = ["ecb.europa.eu"]
 
     def start_requests(self):
         """
-        Instead of hard-coding URLs, we read them from our CSV.
-        This method is called once when the spider starts.
-        It yields one Request object per article URL.
-        """
-        # Path to the CSV from Step 1 (relative to where scrapy is run)
-        csv_path = os.path.join("..", "data", "ecb_articles.csv")
+        Reads press release URLs from the CSV file created
+        by 01c_press_json_requests.py.
 
-        # Check if the CSV exists
+        This method is called once when the spider starts.
+        It yields one Request per press release URL.
+        """
+        # Path to the CSV (relative to ecb_scrapy/ folder)
+        csv_path = os.path.join("..", "data", "ecb_press_releases_json.csv")
+
         if not os.path.exists(csv_path):
             self.logger.error(f"CSV not found at {csv_path}")
-            self.logger.error("Run 01_request_BS.py first!")
+            self.logger.error("Run 01c_press_json_requests.py first!")
             return
 
-        # Read URLs from the CSV
+        # Read all press release rows from CSV
         with open(csv_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             articles = list(reader)
 
-        self.logger.info(f"Loaded {len(articles)} articles from CSV")
+        self.logger.info(f"Loaded {len(articles)} press releases from CSV")
 
-        # Filter out PDF links (we can only parse HTML pages)
-        articles = [a for a in articles if not a["link"].endswith(".pdf")]
+        # Keep only HTML links (skip PDFs — Scrapy can't parse them)
+        html_articles = [
+            a for a in articles
+            if a.get("link_type", "") == "html" and a.get("link", "")
+        ]
+        self.logger.info(f"HTML press releases to crawl: {len(html_articles)}")
 
-        # Yield a request for each article
-        for article in articles:
+        # Yield a Scrapy Request for each press release
+        for article in html_articles:
             yield scrapy.Request(
                 url=article["link"],
                 callback=self.parse,
-                # Pass article metadata along with the request
-                # so we can include it in the output
+                # cb_kwargs passes metadata to the parse method
                 cb_kwargs={
-                    "doc_type": article.get("doc_type", ""),
+                    "doc_type": article.get("doc_type", "press_release"),
                     "title":    article.get("title", ""),
                     "date":     article.get("date", ""),
                     "year":     article.get("year", ""),
@@ -83,52 +94,54 @@ class EcbArticleSpider(scrapy.Spider):
 
     def parse(self, response, doc_type="", title="", date="", year=""):
         """
-        Called for each page response. Extracts the article text
-        and yields an Item.
+        Called for each downloaded press release page.
+        Extracts the full text and yields an Item.
 
-        Parameters:
-            response: the HTTP response from Scrapy
-            doc_type, title, date, year: metadata passed via cb_kwargs
+        DEFENSE QUESTION: "What does parse() do?"
+        ANSWER: parse() is called automatically by Scrapy
+        for every page it downloads. It receives the HTTP
+        response and extracts the data we need.
         """
         # --- EXTRACT ARTICLE TEXT ---
-        # Try multiple CSS selectors (different page layouts)
+        # Try multiple CSS selectors for different page layouts
         full_text = ""
 
-        # Try 1: <article> tag
-        article_elements = response.css("article ::text").getall()
-        if article_elements:
-            full_text = " ".join(article_elements).strip()
+        # Try 1: <article> tag (most ECB pages use this)
+        article_text = response.css("article ::text").getall()
+        if article_text:
+            full_text = " ".join(article_text).strip()
 
         # Try 2: div.section
         if len(full_text) < 50:
-            section_elements = response.css("div.section ::text").getall()
-            if section_elements:
-                full_text = " ".join(section_elements).strip()
+            section_text = response.css("div.section ::text").getall()
+            if section_text:
+                full_text = " ".join(section_text).strip()
 
         # Try 3: main tag
         if len(full_text) < 50:
-            main_elements = response.css("main ::text").getall()
-            if main_elements:
-                full_text = " ".join(main_elements).strip()
+            main_text = response.css("main ::text").getall()
+            if main_text:
+                full_text = " ".join(main_text).strip()
 
         # Try 4: all paragraphs (fallback)
         if len(full_text) < 50:
-            p_elements = response.css("p ::text").getall()
-            if p_elements:
-                full_text = " ".join(p_elements).strip()
+            p_text = response.css("p ::text").getall()
+            if p_text:
+                full_text = " ".join(p_text).strip()
 
-        # Clean up extra whitespace
+        # Clean up whitespace
         full_text = " ".join(full_text.split())
 
         # Log progress
-        text_length = len(full_text)
-        if text_length > 50:
-            self.logger.info(f"OK ({text_length} chars): {response.url[:70]}")
+        if len(full_text) > 50:
+            self.logger.info(
+                f"OK ({len(full_text)} chars): {response.url[:70]}"
+            )
         else:
             self.logger.warning(f"No text: {response.url[:70]}")
 
         # --- YIELD THE ITEM ---
-        # The Pipeline will save this to CSV
+        # The Pipeline (pipelines.py) saves this to CSV
         item = EcbArticleItem()
         item["doc_type"]  = doc_type
         item["title"]     = title
