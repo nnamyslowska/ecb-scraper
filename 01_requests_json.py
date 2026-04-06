@@ -4,6 +4,7 @@ import requests
 import csv
 import os
 import math
+import re
 from datetime import datetime, UTC
 from collections import Counter
 
@@ -16,7 +17,7 @@ OUTPUT_FILE_PRESS = "data/ecb_press_releases_json.csv"
 SPEECH_TYPE_ID = 19
 PRESS_RELEASE_TYPE_ID = 1
 
-START_YEAR = 1992
+START_YEAR = 1997
 END_YEAR = 2026
 
 os.makedirs("data", exist_ok=True)
@@ -110,11 +111,15 @@ def filter_rows(all_rows, target_type, doc_type_name, include_extra_fields=False
         document_types = row.get("documentTypes", [])
         link = get_best_link(document_types)
 
+        date_str = get_date_from_link(link)
+        if not date_str:
+            date_str = unix_to_date_string(row.get("pub_timestamp"))
+
         row_dict = {
             "doc_type": doc_type_name,
             "title": get_title(properties),
             "subtitle": get_subtitle(properties),
-            "date": unix_to_date_string(row.get("pub_timestamp")),
+            "date": date_str,
             "year": row_year,
             "link": link,
             "link_type": get_link_type(link),
@@ -159,6 +164,24 @@ def save_csv(rows, output_file, fieldnames):
         writer.writeheader()
         writer.writerows(rows)
 
+def get_date_from_link(link):
+    """Extract date from ECB speech or press release URL."""
+    if not link:
+        return ""
+
+    match = re.search(r'(?:sp|pr)(\d{2})(\d{2})(\d{2})', link)
+    if not match:
+        return ""
+
+    yy, mm, dd = match.groups()
+    year = int(yy)
+
+    if year <= 26:
+        year += 2000
+    else:
+        year += 1900
+
+    return f"{year:04d}-{mm}-{dd}"
 
 # Downloading metadata and reading dataset structure:
 

@@ -8,6 +8,7 @@ import csv
 import os
 import time
 import re
+import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -16,6 +17,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+
+max_int = sys.maxsize
+while True:
+    try:
+        csv.field_size_limit(max_int)
+        break
+    except OverflowError:
+        max_int = int(max_int / 10)
 
 INPUT_FILE = "data/ecb_speeches_json.csv"
 OUTPUT_FILE = "data/ecb_speeches_full_text.csv"
