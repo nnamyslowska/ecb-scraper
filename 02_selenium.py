@@ -116,7 +116,7 @@ def extract_with_selenium(driver):
 
 
 def extract_with_beautifulsoup(page_source):
-    """Fallback: parse page source with BeautifulSoup.""" # This is more reliable for some ECB page layouts. It can find text even when Selenium's selectors fail. It tries the same areas as Selenium but uses BeautifulSoup's parsing, which can handle more complex HTML structures.
+    """Fallback: parse page source with BeautifulSoup."""
     soup = BeautifulSoup(page_source, "html.parser")
 
     section = soup.find("div", class_="section")
@@ -233,7 +233,7 @@ for i, article in enumerate(remaining, start=1):
     })
 
     if i % SAVE_EVERY == 0:
-        print(f"Saving progress ({len(results)} speeches)...")
+        print(f"Saving progress ({len(results)} speeches)")
         with open(OUTPUT_FILE, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()

@@ -14,11 +14,11 @@ class CsvPipeline:
 
     def process_item(self, item, spider):
         row = {
-            "doc_type":  item.get("doc_type", ""),
-            "title":     item.get("title", ""),
-            "date":      item.get("date", ""),
-            "year":      item.get("year", ""),
-            "link":      item.get("link", ""),
+            "doc_type": item.get("doc_type", ""),
+            "title": item.get("title", ""),
+            "date": item.get("date", ""),
+            "year": item.get("year", ""),
+            "link": item.get("link", ""),
             "full_text": item.get("full_text", ""),
         }
         self.writer.writerow(row)
