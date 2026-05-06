@@ -1,5 +1,20 @@
 # Collecting ECB speeches and press releases from the JSON dataset
 
+import requests
+import csv
+import os
+import math
+import re
+import json
+import time
+from datetime import datetime, UTC
+from collections import Counter
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 PUBLICATIONS_PAGE_URL = "https://www.ecb.europa.eu/press/pubbydate/html/index.en.html"
 
 def discover_base_dataset():

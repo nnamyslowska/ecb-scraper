@@ -22,6 +22,11 @@ FILES AND RUN ORDER
 --------------------
 Run the files in this order:
 
+0. Download the dataset files from Google Drive
+    - The full dataset files (all CSV outputs) were too large to include in the submission ZIP.
+    - Download all CSV files from the Google Drive folder linked below.
+    - Place them inside the `data/` folder before running the notebook or using existing outputs.
+
 1. 01_requests_json.py
     - Uses: requests + Selenium (for metadata endpoint discovery)
     - Automatically detects the current ECB metadata dataset URL
@@ -76,3 +81,6 @@ DATA LINK
 ----------
 GitHub: https://github.com/nnamyslowska/ecb-scraper
 Google Drive: https://drive.google.com/drive/folders/1iPdb4PMB6AjEAp6MaGfwAU3u2Xs-vnj-?usp=sharing
+
+The Google Drive folder contains all CSV dataset files used in the project.
+These files should be downloaded and placed into the `data/` folder.
