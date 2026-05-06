@@ -24,7 +24,7 @@ Run the files in this order:
 
 1. 01_requests_json.py
     - Uses: requests
-    - Downloads speech metadata from ECB JSON dataset (type=19 and type=1)
+    - Downloads speech and press-release metadata from the ECB JSON dataset (type=19 and type=1)
     - Filters speeches and press release from 1997-2026
     - Output: data/ecb_speeches_json.csv    data/ecb_press_releases_json.csv
 
