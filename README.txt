@@ -1,6 +1,6 @@
 README - ECB web scraping project
 ===================================
-Name: Natalia Namyslowska
+Name: Natalia Namysłowska
 
 PROJECT DESCRIPTION
 --------------------
