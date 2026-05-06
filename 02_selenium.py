@@ -119,29 +119,28 @@ def extract_with_beautifulsoup(page_source):
     """Fallback: parse page source with BeautifulSoup."""
     soup = BeautifulSoup(page_source, "html.parser")
 
-    section = soup.find("div", class_="section")
-    if section:
-        for tag in section.find_all(["script", "style"]):
-            tag.decompose()
-        text = section.get_text(separator=" ", strip=True)
-        if len(text) >= MIN_TEXT_LENGTH:
-            return text
+    selectors = [
+        ("div", {"class": "section"}, ["script", "style"]),
+        ("article", {}, ["script", "style"]),
+        ("main", {}, ["script", "style", "nav", "header", "footer"]),
+    ]
 
-    article = soup.find("article")
-    if article:
-        for tag in article.find_all(["script", "style"]):
-            tag.decompose()
-        text = article.get_text(separator=" ", strip=True)
-        if len(text) >= MIN_TEXT_LENGTH:
-            return text
+    for tag_name, attrs, remove_tags in selectors:
+        tags = soup.find_all(tag_name, attrs=attrs)
+        parts = []
 
-    main = soup.find("main")
-    if main:
-        for tag in main.find_all(["script", "style", "nav", "header", "footer"]):
-            tag.decompose()
-        text = main.get_text(separator=" ", strip=True)
-        if len(text) >= MIN_TEXT_LENGTH:
-            return text
+        for tag in tags:
+            for unwanted in tag.find_all(remove_tags):
+                unwanted.decompose()
+
+            text = tag.get_text(separator=" ", strip=True)
+            if text:
+                parts.append(text)
+
+        full_text = " ".join(parts).strip()
+
+        if len(full_text) >= MIN_TEXT_LENGTH:
+            return full_text
 
     paragraphs = soup.find_all("p")
     if paragraphs:

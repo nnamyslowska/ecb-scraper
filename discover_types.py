@@ -1,6 +1,3 @@
-# Quick script to find all ECB publication type IDs
-# Uses the correct field names from the metadata header
-
 import requests
 import math
 
@@ -34,4 +31,4 @@ print(f"\nFound {len(all_types)} publication types:\n")
 for t in all_types:
     type_id = t.get("id_publication_type", "?")
     type_name = t.get("publication_name", "?")
-    print(f"  ID: {str(type_id):>3}  |  {type_name}")
+    print(f" ID: {str(type_id):>3} | {type_name}")
