@@ -23,17 +23,21 @@ FILES AND RUN ORDER
 Run the files in this order:
 
 1. 01_requests_json.py
-    - Uses: requests
-    - Downloads speech and press-release metadata from the ECB JSON dataset (type=19 and type=1)
-    - Filters speeches and press release from 1997-2026
-    - Output: data/ecb_speeches_json.csv    data/ecb_press_releases_json.csv
+    - Uses: requests + Selenium (for metadata endpoint discovery)
+    - Automatically detects the current ECB metadata dataset URL
+    - Downloads speech and press release metadata from the ECB JSON dataset
+    - Filters speeches and press releases from 1997-2026
+    - Output:
+      data/ecb_speeches_json.csv
+      data/ecb_press_releases_json.csv
 
-2.  02_selenium.py
-    - Uses: Selenium
+2. 02_selenium.py
+    - Uses: Selenium + BeautifulSoup
     - Reads speech URLs from data/ecb_speeches_json.csv
     - Visits each speech HTML page and extracts full text
+    - Uses BeautifulSoup as a fallback parser if Selenium selectors return too little text
     - Output: data/ecb_speeches_full_text.csv
-    - Note: Takes time due to 5s delay per page.
+    - Note: Takes time due to 5-second delay per page.
 
 3.  ecb_scrapy/
     - Uses: Scrapy framework (spider, items, pipeline)
@@ -53,7 +57,7 @@ HOW TO SET UP THE ENVIRONMENT
 1. Create a virtual environment:   python -m venv venv
 2. Activate it:                    venv\Scripts\activate
 3. Install packages:               pip install -r requirements.txt
-4. Run scripts in order
+4. Run scripts in order: 01, 02, ecb_scrapy/ , 04
 
 For the Scrapy spider:
    cd ecb_scrapy

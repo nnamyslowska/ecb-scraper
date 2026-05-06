@@ -1,14 +1,46 @@
 # Collecting ECB speeches and press releases from the JSON dataset
 
-import requests
-import csv
-import os
-import math
-import re
-from datetime import datetime, UTC
-from collections import Counter
+PUBLICATIONS_PAGE_URL = "https://www.ecb.europa.eu/press/pubbydate/html/index.en.html"
 
-BASE_DATASET = "https://www.ecb.europa.eu/foedb/dbs/foedb/publications.en/1775134838/wr3YWp5G"
+def discover_base_dataset():
+    """Open the ECB publications page and detect the current metadata.json URL."""
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+
+    driver = webdriver.Chrome(
+        service=Service(ChromeDriverManager().install()),
+        options=chrome_options
+    )
+
+    try:
+        driver.get(PUBLICATIONS_PAGE_URL)
+        time.sleep(5)
+
+        logs = driver.get_log("performance")
+
+        for entry in logs:
+            message = json.loads(entry["message"])["message"]
+
+            if message.get("method") != "Network.requestWillBeSent":
+                continue
+
+            request = message.get("params", {}).get("request", {})
+            url = request.get("url", "")
+
+            if "metadata.json" in url and "publications.en" in url:
+                return url.rsplit("/metadata.json", 1)[0]
+
+    finally:
+        driver.quit()
+
+    raise RuntimeError("Could not automatically detect ECB metadata URL.")
+
+
+BASE_DATASET = discover_base_dataset()
 METADATA_URL = BASE_DATASET + "/metadata.json"
 
 OUTPUT_FILE_SPEECHES = "data/ecb_speeches_json.csv"
